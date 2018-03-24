@@ -1,0 +1,44 @@
+# Copyright (C) 2018  Björnborg Nguyen
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+FROM alpine:edge AS builder
+MAINTAINER Björnborg Nguyen "bjornborg.nguyen@chalmers.se"
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+
+RUN apk update && \
+    apk --no-cache add \
+        cmake \
+        g++ \
+        upx \
+        ccache \
+        make 
+
+ADD . /opt/sources
+WORKDIR /opt/sources
+RUN rm -rf build && \
+    mkdir build && \
+    cd build && \
+    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/opendlv-device-kiwi-prugw-dest .. && \
+    make && make install && upx -9 /tmp/opendlv-device-kiwi-prugw-dest/bin/opendlv-device-kiwi-prugw
+
+
+
+FROM alpine:edge
+
+WORKDIR /usr/bin
+COPY --from=builder /tmp/opendlv-device-kiwi-prugw-dest/ /usr/
+CMD ["/usr/bin/opendlv-device-kiwi-prugw"]
+
+

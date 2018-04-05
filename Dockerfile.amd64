@@ -23,6 +23,9 @@ RUN apk update && \
         g++ \
         upx \
         ccache \
+        ncurses-dev \
+        linux-headers \
+        upx \
         make 
 
 ADD . /opt/sources
@@ -30,15 +33,18 @@ WORKDIR /opt/sources
 RUN rm -rf build && \
     mkdir build && \
     cd build && \
-    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/opendlv-device-kiwi-prugw-dest .. && \
-    make && make install && upx -9 /tmp/opendlv-device-kiwi-prugw-dest/bin/opendlv-device-kiwi-prugw
+    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/opendlv-device-ps3controller-dest .. && \
+    make -j4 && make install && upx -9 /tmp/opendlv-device-ps3controller-dest/bin/opendlv-device-ps3controller
 
 
 
 FROM alpine:edge
-
+MAINTAINER Björnborg Nguyen "bjornborg.nguyen@chalmers.se"
+RUN apk update && \
+    apk --no-cache add \
+    ncurses-dev 
 WORKDIR /usr/bin
-COPY --from=builder /tmp/opendlv-device-kiwi-prugw-dest/ /usr/
-CMD ["/usr/bin/opendlv-device-kiwi-prugw"]
+COPY --from=builder /tmp/opendlv-device-ps3controller-dest/ /usr/
+CMD ["/usr/bin/opendlv-device-ps3controller"]
 
 

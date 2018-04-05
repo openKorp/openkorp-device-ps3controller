@@ -22,10 +22,11 @@
 int32_t main(int32_t argc, char **argv) {
   int32_t retCode{0};
   auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
-  if (0 == commandlineArguments.count("cid")) {
-    std::cerr << argv[0] << " interfaces to the motors of the Kiwi platform." << std::endl;
-    std::cerr << "Usage:   " << argv[0] << " --cid=<OpenDaVINCI session> [--verbose]" << std::endl;
-    std::cerr << "Example: " << argv[0] << " --cid=111" << std::endl;
+  if (0 == commandlineArguments.count("cid") ||
+      0 == commandlineArguments.count("input")) {
+    std::cerr << argv[0] << " interfaces to the ps3controller for the kiwi." << std::endl;
+    std::cerr << "Usage:   " << argv[0] << " --cid=<OpenDaVINCI session> [--verbose] --input=<js node>" << std::endl;
+    std::cerr << "Example: " << argv[0] << " --cid=111 --input=js0" << std::endl;
     retCode = 1;
   } else {
     cluon::OD4Session od4{static_cast<uint16_t>(std::stoi(commandlineArguments["cid"])),

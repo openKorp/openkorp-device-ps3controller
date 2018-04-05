@@ -20,8 +20,10 @@
 #ifndef Ps3CONTROLLER_H
 #define Ps3CONTROLLER_H
 
-#include <vector>
-#include <unistd.h>
+#include <string>
+#include "opendlv-standard-message-set.hpp"
+// #include <vector>
+// #include <unistd.h>
 
 
 /**
@@ -70,29 +72,25 @@
 
 class Ps3Controller {
 public:
-  Ps3Controller(int32_t const &, char **);
+  Ps3Controller(std::string);
   Ps3Controller(Ps3Controller const &) = delete;
   Ps3Controller &operator=(Ps3Controller const &) = delete;
   virtual ~Ps3Controller();
-
-private:
   void readPs3Controller();
-  void updateStateReq();
-  void sendStateRequest();
-  void updateTrim();
-
+  std::string toString();
+  opendlv::proxy::PedalPositionRequest getPedalPositionRequest();
+  opendlv::proxy::GroundSteeringRequest getGroundSteeringRequest();
+private:
   /** Minimum value of axes range */
-  static const short MIN_AXES_VALUE = -32768;
+  float const MIN_AXES_VALUE = -32768.0f;
   /** Minimum value of axes range */
-  static const short MAX_AXES_VALUE = 32767;
+  float const MAX_AXES_VALUE = 32767.0f;
 
   int32_t m_ps3controllerDevice;
   std::unique_ptr<int32_t[]> m_axes;
   std::unique_ptr<int32_t[]> m_buttons;
   int16_t m_numAxes;
   int16_t m_numButtons;
-  double pitchTrim;
-  double rollTrim;
 };
 
 

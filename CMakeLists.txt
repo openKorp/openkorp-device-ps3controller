@@ -20,13 +20,13 @@ endif(CCACHE_FOUND)
 
 cmake_minimum_required(VERSION 3.2)
 
-project(opendlv-device-ps3controller)
+project(openkorp-device-ps3controller)
 
 ################################################################################
 # Defining the relevant versions of OpenDLV Standard Message Set and libcluon.
 set(OPENDLV_STANDARD_MESSAGE_SET opendlv-standard-message-set-v0.9.4.odvd)
+set(OPENKORP_MESSAGE_SET openkorp-v0.0.1.odvd)
 set(CLUON_COMPLETE cluon-complete-v0.0.63.hpp)
-set(OPENKORP_SET opendlv.odvd)
 
 
 ################################################################################
@@ -58,15 +58,29 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 # Threads are necessary for linking the resulting binaries as UDPReceiver is running in parallel.
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+find_program(FOUND_CLUON cluon-msc)
 
 ################################################################################
+# Find installed libcluon
+if(FOUND_CLUON)
+    message(STATUS "Libcluon: found at " ${FOUND_CLUON})
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/cluon-msc
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${FOUND_CLUON} ${CMAKE_BINARY_DIR}/cluon-msc
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/src/${CLUON_COMPLETE} ${CMAKE_BINARY_DIR}/cluon-complete.hpp
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/cluon-complete.hpp ${CMAKE_BINARY_DIR}/cluon-complete.cpp)
+else()
+################################################################################
 # Extract cluon-msc from cluon-complete.hpp.
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/cluon-msc
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/src/${CLUON_COMPLETE} ${CMAKE_BINARY_DIR}/cluon-complete.hpp
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/cluon-complete.hpp ${CMAKE_BINARY_DIR}/cluon-complete.cpp
-    COMMAND ${CMAKE_CXX_COMPILER} -o ${CMAKE_BINARY_DIR}/cluon-msc ${CMAKE_BINARY_DIR}/cluon-complete.cpp -std=c++14 -pthread -D HAVE_CLUON_MSC
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${CLUON_COMPLETE})
+    message(STATUS "Libcluon: not found - generating cluon-msc from header file")
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/cluon-msc
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/src/${CLUON_COMPLETE} ${CMAKE_BINARY_DIR}/cluon-complete.hpp
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/cluon-complete.hpp ${CMAKE_BINARY_DIR}/cluon-complete.cpp
+        COMMAND ${CMAKE_CXX_COMPILER} -o ${CMAKE_BINARY_DIR}/cluon-msc ${CMAKE_BINARY_DIR}/cluon-complete.cpp -std=c++14 -pthread -D HAVE_CLUON_MSC
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${CLUON_COMPLETE}) 
+endif()
+
 
 ################################################################################
 # Generate opendlv-standard-message-set.{hpp,cpp} from ${OPENDLV_STANDARD_MESSAGE_SET} file.
@@ -75,9 +89,14 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.cpp
     COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp-sources --cpp-add-include-file=opendlv-standard-message-set.hpp --out=${CMAKE_BINARY_DIR}/opendlv-standard-message-set.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET}
     COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp-headers --out=${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET}
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET} ${CMAKE_BINARY_DIR}/cluon-msc)
-# Add current build directory as include directory as it contains generated files.
-include_directories(SYSTEM ${CMAKE_BINARY_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src )
+
+################################################################################
+# Generate openkorp-message-set.{hpp,cpp}.
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/openkorp-message-set.cpp
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp-sources --cpp-add-include-file=openkorp-message-set.hpp --out=${CMAKE_BINARY_DIR}/openkorp-message-set.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENKORP_MESSAGE_SET}
+    COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp-headers --out=${CMAKE_BINARY_DIR}/openkorp-message-set.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENKORP_MESSAGE_SET}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENKORP_MESSAGE_SET} ${CMAKE_BINARY_DIR}/cluon-msc)
 
 # Add current build directory as include directory as it contains generated files.
 include_directories(SYSTEM ${CMAKE_BINARY_DIR})
@@ -90,7 +109,7 @@ include_directories( ${CURSES_INCLUDE_DIRS} )
 
 ################################################################################
 # Gather all object code first to avoid double compilation.
-add_library(${PROJECT_NAME}-core OBJECT  ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.cpp src/Ps3Controller.cpp)
+add_library(${PROJECT_NAME}-core OBJECT  ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.cpp ${CMAKE_BINARY_DIR}/openkorp-message-set.cpp src/Ps3Controller.cpp)
 set(LIBRARIES Threads::Threads ${CURSES_LIBRARIES})
 
 ################################################################################

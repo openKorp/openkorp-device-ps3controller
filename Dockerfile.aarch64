@@ -13,11 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Part to build opendlv-device-lidar-vlp16.
 FROM docker.io/project31/aarch64-alpine-qemu:3.5-7 as builder
-MAINTAINER Christian Berger "christian.berger@gu.se"
 
 RUN [ "cross-build-start" ]
+
 MAINTAINER Björnborg Nguyen "bjornborg.nguyen@chalmers.se"
 
 RUN cat /etc/apk/repositories && \
@@ -34,20 +33,22 @@ RUN apk update && \
         linux-headers \
         make 
 
+RUN apk add libcluon --no-cache --repository https://chrberger.github.io/libcluon/alpine/v3.7 --allow-untrusted
+
 ADD . /opt/sources
 WORKDIR /opt/sources
 RUN rm -rf build && \
     mkdir build && \
     cd build && \
-    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/opendlv-device-ps3controller-dest .. && \
-    make -j4 && make install && upx -9 /tmp/opendlv-device-ps3controller-dest/bin/opendlv-device-ps3controller
+    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/openkorp-device-ps3controller-dest .. && \
+    make -j4 && make install && upx -9 /tmp/openkorp-device-ps3controller-dest/bin/openkorp-device-ps3controller
 
 
 
 RUN [ "cross-build-end" ]
 
 
-# Part to deploy opendlv-device-lidar-vlp16.
+# Part to deploy openkorp-device-lidar-vlp16.
 FROM docker.io/project31/aarch64-alpine-qemu:3.5-7
 MAINTAINER Björnborg Nguyen "bjornborg.nguyen@chalmers.se"
 RUN [ "cross-build-start" ]
@@ -56,7 +57,7 @@ RUN apk update && \
     ncurses-dev 
 RUN [ "cross-build-end" ]
 WORKDIR /usr/bin
-COPY --from=builder /tmp/opendlv-device-ps3controller-dest/ /usr/
-CMD ["/usr/bin/opendlv-device-ps3controller"]
+COPY --from=builder /tmp/openkorp-device-ps3controller-dest/ /usr/
+CMD ["/usr/bin/openkorp-device-ps3controller"]
 
 

@@ -25,6 +25,8 @@
 #include <sstream>
 #include <memory>
 
+#include "openkorp-message-set.hpp"
+
 #include "Ps3Controller.h"
 
 #if !defined(WIN32) && !defined(__gnu_hurd__) && !defined(__APPLE__)

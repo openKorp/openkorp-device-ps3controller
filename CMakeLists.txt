@@ -24,8 +24,8 @@ project(openkorp-device-ps3controller)
 
 ################################################################################
 # Defining the relevant versions of OpenDLV Standard Message Set and libcluon.
-set(OPENDLV_STANDARD_MESSAGE_SET opendlv-standard-message-set-v0.9.4.odvd)
-set(OPENKORP_MESSAGE_SET openkorp-message-set-v0.0.1.odvd)
+set(OPENDLV_STANDARD_MESSAGE_SET opendlv-standard-message-set.odvd)
+set(OPENKORP_MESSAGE_SET openkorp-message-set.odvd)
 set(CLUON_COMPLETE cluon-complete-v0.0.63.hpp)
 
 

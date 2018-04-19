@@ -4,4 +4,6 @@ services:
     device-ps3controller:
         image: openkorp/openkorp-device-ps3controller-multi:latest
         network_mode: "host"
+        devices:
+          - /dev/input/js0:/dev/input/js0
         command: "/usr/bin/openkorp-device-ps3controller --cid=111 --freq=10 --input=/dev/input/js0" 

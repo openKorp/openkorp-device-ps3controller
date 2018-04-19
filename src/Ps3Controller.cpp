@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include <iostream>
-// #include <cmath>
+#include <cmath>
 #include <unistd.h>
 #include <string>
 #include <sstream>
@@ -40,6 +40,7 @@ Ps3Controller::Ps3Controller(std::string a_jsnode)
     , m_axes() 
     , m_buttons()
     , m_numAxes(0)
+    , m_stateReq()
     , m_numButtons(0) 
 {
   std::string const Ps3CONTROLLER_DEVICE_NODE = a_jsnode;
@@ -119,6 +120,7 @@ void Ps3Controller::readPs3Controller()
       default:
         break;
     }
+  updateStateReq();
   }
 
   /* EAGAIN is returned when the queue is empty */
@@ -131,18 +133,52 @@ void Ps3Controller::readPs3Controller()
 
 }
 
-opendlv::proxy::GroundSteeringRequest Ps3Controller::getGroundSteeringRequest()
+void Ps3Controller::updateStateReq()
 {
-  float val{-(m_axes[0] / MAX_AXES_VALUE)};
-  opendlv::proxy::GroundSteeringRequest gsr;
-  gsr.groundSteering(val);
-  return gsr;
+  if (m_stateReq.baseThrust() >= 0){
+    // BaseThrust
+    double decrement = -static_cast<double>(m_axes[1] / (32767.0 * 160.0));
+    // std::cout << "decrement: " << decrement << std::endl;
+    m_stateReq.baseThrust(m_stateReq.baseThrust() + decrement);
+    if (m_stateReq.baseThrust() < 0) {
+      m_stateReq.baseThrust(0);
+    } else if (m_stateReq.baseThrust() > 1) {
+      m_stateReq.baseThrust(1);
+    }
+    //Yaw speed
+    m_stateReq.yawSpeed((m_axes[0]/32767.0)*(0.05)); //The maximum on the joystick coresponds to pi/36 radians of roll
+    // Roll
+    m_stateReq.roll((m_axes[2]/32767.0)*(M_PI/36));
+    // Pitch
+    m_stateReq.pitch((m_axes[3]/32767.0)*(M_PI/36));
+  }
 }
 
-opendlv::proxy::PedalPositionRequest Ps3Controller::getPedalPositionRequest()
+void Ps3Controller::updateTrim()
 {
-  float val{-(m_axes[3] / MAX_AXES_VALUE)};
-  opendlv::proxy::PedalPositionRequest ppr;
-  ppr.position(val);
-  return ppr;
+  double pitchTrimInput = 2*3.14/7200.0*(m_buttons[14] - m_buttons[12]);
+  double pitchRollInput = 2*3.14/7200.0*(m_buttons[13] - m_buttons[15]);
+
+  m_stateReq.pitchTrim(pitchTrimInput);
+  m_stateReq.rollTrim(pitchRollInput);
+}
+
+double Ps3Controller::getBaseThrust()
+{
+  return m_stateReq.baseThrust();
+}
+
+double Ps3Controller::getYawSpeed()
+{
+  return m_stateReq.yawSpeed();
+}
+
+double Ps3Controller::getRoll()
+{
+  return m_stateReq.roll();
+}
+
+double Ps3Controller::getPitch()
+{
+  return m_stateReq.pitch();
 }

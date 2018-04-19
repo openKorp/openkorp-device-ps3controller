@@ -22,6 +22,7 @@
 
 #include <string>
 #include "opendlv-standard-message-set.hpp"
+#include <openkorp-message-set.hpp>
 // #include <vector>
 // #include <unistd.h>
 
@@ -78,9 +79,13 @@ public:
   virtual ~Ps3Controller();
   void readPs3Controller();
   std::string toString();
-  opendlv::proxy::PedalPositionRequest getPedalPositionRequest();
-  opendlv::proxy::GroundSteeringRequest getGroundSteeringRequest();
+  double getBaseThrust();
+  double getYawSpeed();
+  double getRoll();
+  double getPitch();
 private:
+  void updateStateReq();
+  void updateTrim();
   /** Minimum value of axes range */
   float const MIN_AXES_VALUE = -32768.0f;
   /** Minimum value of axes range */
@@ -90,6 +95,7 @@ private:
   std::unique_ptr<int32_t[]> m_axes;
   std::unique_ptr<int32_t[]> m_buttons;
   int16_t m_numAxes;
+  openkorp::logic::StateRequest m_stateReq;
   int16_t m_numButtons;
 };
 

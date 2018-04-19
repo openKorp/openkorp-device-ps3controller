@@ -18,21 +18,60 @@
 #include "cluon-complete.hpp"
 #include "opendlv-standard-message-set.hpp"
 #include "Ps3Controller.h"
+#include <ncurses.h>
 
 int32_t main(int32_t argc, char **argv) {
   int32_t retCode{0};
   auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
   if (0 == commandlineArguments.count("cid") ||
-      0 == commandlineArguments.count("input")) {
-    std::cerr << argv[0] << " interfaces to the ps3controller for the kiwi." << std::endl;
+      0 == commandlineArguments.count("input") ||
+      0 == commandlineArguments.count("freq")) {
+    std::cerr << argv[0] << " interfaces to the ps3controller for the Drone." << std::endl;
     std::cerr << "Usage:   " << argv[0] << " --cid=<OpenDaVINCI session> [--verbose] --input=<js node>" << std::endl;
-    std::cerr << "Example: " << argv[0] << " --cid=111 --input=js0" << std::endl;
+    std::cerr << "Example: " << argv[0] << " --cid=111 --input=/dev/input/js0" << std::endl;
     retCode = 1;
+    Ps3Controller ps3controller();
   } else {
+    int32_t VERBOSE{commandlineArguments.count("verbose") != 0};
     cluon::OD4Session od4{static_cast<uint16_t>(std::stoi(commandlineArguments["cid"])),
       [](auto){}
     };
-    Ps3Controller ps3controller();
+    if (VERBOSE) {
+      VERBOSE = std::stoi(commandlineArguments["verbose"]);
+    }
+    float const FREQ = std::stof(commandlineArguments["freq"]);
+    Ps3Controller ps3controller(commandlineArguments["input"]);
+    if (VERBOSE == 2) {
+      initscr();
+    }
+
+    auto atFrequency{[&ps3controller, &VERBOSE, &od4]() -> bool
+    {
+      ps3controller.readPs3Controller();
+      double baseThrust = ps3controller.getBaseThrust();
+      double yawSpeed  = ps3controller.getYawSpeed();
+      double roll  = ps3controller.getRoll();
+      double pitch  = ps3controller.getPitch();
+
+      cluon::data::TimeStamp sampleTime;
+      if (VERBOSE == 1) {
+        std::cout 
+            << ps3controller.toString() << std::endl
+            << "baseThrust: " + std::to_string(baseThrust) << std::endl
+            << "yawSpeed: " + std::to_string(yawSpeed) << std::endl
+            << "roll: " + std::to_string(roll) << std::endl
+            << "pitch: " + std::to_string(pitch) << std::endl;
+      }
+      if (VERBOSE == 2) {
+        mvprintw(1,1,(ps3controller.toString()).c_str()); 
+        mvprintw(1,40,(std::to_string(baseThrust)).c_str()); 
+        refresh();   
+      }
+
+      return true;
+    }};
+
+    od4.timeTrigger(FREQ, atFrequency);
 
     while (od4.isRunning()) {
       std::this_thread::sleep_for(std::chrono::duration<double>(1.0));

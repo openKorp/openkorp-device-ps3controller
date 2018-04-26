@@ -79,10 +79,7 @@ public:
   virtual ~Ps3Controller();
   void readPs3Controller();
   std::string toString();
-  double getBaseThrust();
-  double getYawSpeed();
-  double getRoll();
-  double getPitch();
+  openkorp::logic::StateRequest getStateRequest();
 private:
   void updateStateReq();
   void updateTrim();

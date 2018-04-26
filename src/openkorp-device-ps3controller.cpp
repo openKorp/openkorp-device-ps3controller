@@ -19,6 +19,7 @@
 #include "opendlv-standard-message-set.hpp"
 #include "Ps3Controller.h"
 #include <ncurses.h>
+#include "openkorp-message-set.hpp"
 
 int32_t main(int32_t argc, char **argv) {
   int32_t retCode{0};
@@ -48,26 +49,34 @@ int32_t main(int32_t argc, char **argv) {
     auto atFrequency{[&ps3controller, &VERBOSE, &od4]() -> bool
     {
       ps3controller.readPs3Controller();
-      double baseThrust = ps3controller.getBaseThrust();
-      double yawSpeed  = ps3controller.getYawSpeed();
-      double roll  = ps3controller.getRoll();
-      double pitch  = ps3controller.getPitch();
+      openkorp::logic::StateRequest ps3StateReq = ps3controller.getStateRequest();
+      double baseThrust = ps3StateReq.baseThrust();
+      double yawSpeed  = ps3StateReq.yawSpeed();
+      double roll  = ps3StateReq.roll();
+      double pitch  = ps3StateReq.pitch();
+      double pitchTrim  = ps3StateReq.pitchTrim();
+      double rollTrim  = ps3StateReq.rollTrim();
 
-      cluon::data::TimeStamp sampleTime;
       if (VERBOSE == 1) {
         std::cout 
             << ps3controller.toString() << std::endl
             << "baseThrust: " + std::to_string(baseThrust) << std::endl
             << "yawSpeed: " + std::to_string(yawSpeed) << std::endl
             << "roll: " + std::to_string(roll) << std::endl
-            << "pitch: " + std::to_string(pitch) << std::endl;
+            << "pitch: " + std::to_string(pitch) << std::endl
+            << "pitchTrim: " + std::to_string(pitchTrim) << std::endl
+            << "rollTrim: " + std::to_string(rollTrim) << std::endl;
       }
       if (VERBOSE == 2) {
         mvprintw(1,1,(ps3controller.toString()).c_str()); 
         mvprintw(1,40,(std::to_string(baseThrust)).c_str()); 
+        mvprintw(20,40,(std::to_string(rollTrim)).c_str()); 
         refresh();   
       }
+      cluon::data::TimeStamp sampleTime = cluon::time::now();
+      openkorp::logic::StateRequest message = ps3controller.getStateRequest();
 
+      od4.send(message, sampleTime, 0);
       return true;
     }};
 

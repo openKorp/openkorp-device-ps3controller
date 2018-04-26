@@ -151,34 +151,16 @@ void Ps3Controller::updateStateReq()
     m_stateReq.roll((m_axes[2]/32767.0)*(M_PI/36));
     // Pitch
     m_stateReq.pitch((m_axes[3]/32767.0)*(M_PI/36));
+
+    double pitchTrimInput = 2*3.14/7200.0*(m_buttons[14] - m_buttons[12]);
+    double rollTrimInput = 2*3.14/7200.0*(m_buttons[13] - m_buttons[15]);
+    m_stateReq.pitchTrim(m_stateReq.pitchTrim() + pitchTrimInput);
+    m_stateReq.rollTrim(m_stateReq.rollTrim() + rollTrimInput);
   }
 }
 
-void Ps3Controller::updateTrim()
-{
-  double pitchTrimInput = 2*3.14/7200.0*(m_buttons[14] - m_buttons[12]);
-  double pitchRollInput = 2*3.14/7200.0*(m_buttons[13] - m_buttons[15]);
 
-  m_stateReq.pitchTrim(pitchTrimInput);
-  m_stateReq.rollTrim(pitchRollInput);
-}
-
-double Ps3Controller::getBaseThrust()
+openkorp::logic::StateRequest Ps3Controller::getStateRequest()
 {
-  return m_stateReq.baseThrust();
-}
-
-double Ps3Controller::getYawSpeed()
-{
-  return m_stateReq.yawSpeed();
-}
-
-double Ps3Controller::getRoll()
-{
-  return m_stateReq.roll();
-}
-
-double Ps3Controller::getPitch()
-{
-  return m_stateReq.pitch();
+  return m_stateReq;
 }

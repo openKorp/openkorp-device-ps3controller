@@ -15,17 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-message opendlv.proxy.PwmMotorRequest [id = 1000] {
+message openkorp.proxy.PwmMotorRequest [id = 1000] {
   string name [id = 1];
   double power [id = 2];
 }
-message opendlv.logic.State [id = 1010] {
+message openkorp.logic.State [id = 1010] {
   double roll [id = 1];
   double pitch [id = 2];
   double rollSpeed [id = 3];
   double pitchSpeed [id = 4];
 }
-message opendlv.logic.StateRequest [id = 1011] {
+message openkorp.logic.StateRequest [id = 1011] {
   double baseThrust [id = 1];
   double roll [id = 2];
   double pitch [id = 3];

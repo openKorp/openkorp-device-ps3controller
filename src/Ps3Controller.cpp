@@ -137,7 +137,7 @@ void Ps3Controller::updateStateReq()
 {
   if (m_stateReq.baseThrust() >= 0){
     // BaseThrust
-    double decrement = -static_cast<double>(m_axes[1] / (32767.0 * 160.0));
+    float decrement = -m_axes[1] / (32767.0f * 160.0f);
     // std::cout << "decrement: " << decrement << std::endl;
     m_stateReq.baseThrust(m_stateReq.baseThrust() + decrement);
     if (m_stateReq.baseThrust() < 0) {
@@ -146,14 +146,14 @@ void Ps3Controller::updateStateReq()
       m_stateReq.baseThrust(1);
     }
     //Yaw speed
-    m_stateReq.yawSpeed((m_axes[0]/32767.0)*(0.05)); //The maximum on the joystick coresponds to pi/36 radians of roll
+    m_stateReq.yawSpeed((m_axes[0]/32767.0f)*(0.05f)); //The maximum on the joystick coresponds to pi/36 radians of roll
     // Roll
-    m_stateReq.roll((m_axes[2]/32767.0)*(M_PI/36));
+    m_stateReq.roll((m_axes[2]/32767.0f)*(static_cast<float>(M_PI)/36.0f));
     // Pitch
-    m_stateReq.pitch((m_axes[3]/32767.0)*(M_PI/36));
+    m_stateReq.pitch((m_axes[3]/32767.0f)*(static_cast<float>(M_PI)/36.0f));
 
-    double pitchTrimInput = 2*3.14/7200.0*(m_buttons[14] - m_buttons[12]);
-    double rollTrimInput = 2*3.14/7200.0*(m_buttons[13] - m_buttons[15]);
+    float pitchTrimInput = 2*3.14f/7200.0f*(m_buttons[14] - m_buttons[12]);
+    float rollTrimInput = 2*3.14f/7200.0f*(m_buttons[13] - m_buttons[15]);
     m_stateReq.pitchTrim(m_stateReq.pitchTrim() + pitchTrimInput);
     m_stateReq.rollTrim(m_stateReq.rollTrim() + rollTrimInput);
   }

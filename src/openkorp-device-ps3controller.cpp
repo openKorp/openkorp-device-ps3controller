@@ -74,9 +74,8 @@ int32_t main(int32_t argc, char **argv) {
         refresh();   
       }
       cluon::data::TimeStamp sampleTime = cluon::time::now();
-      openkorp::logic::StateRequest message = ps3controller.getStateRequest();
 
-      od4.send(message, sampleTime, 0);
+      od4.send(ps3StateReq, sampleTime, 0);
       return true;
     }};
 

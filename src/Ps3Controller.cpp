@@ -120,8 +120,8 @@ void Ps3Controller::readPs3Controller()
       default:
         break;
     }
-  updateStateReq();
   }
+  updateStateReq();
 
   /* EAGAIN is returned when the queue is empty */
   if (errno != EAGAIN) {

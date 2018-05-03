@@ -15,17 +15,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-message openkorp.proxy.PwmMotorRequest [id = 1000] {
-  string name [id = 1];
-  float power [id = 2];
+message openkorp.proxy.PwmMotorRequest [id = 2000] {
+  float power [id = 1];
 }
-message openkorp.logic.State [id = 1010] {
+message openkorp.logic.State [id = 2010] {
   float roll [id = 1];
   float pitch [id = 2];
   float rollSpeed [id = 3];
   float pitchSpeed [id = 4];
 }
-message openkorp.logic.StateRequest [id = 1011] {
+message openkorp.logic.StateRequest [id = 2011] {
   float baseThrust [id = 1];
   float roll [id = 2];
   float pitch [id = 3];

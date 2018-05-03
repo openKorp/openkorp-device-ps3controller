@@ -21,8 +21,7 @@
 #define Ps3CONTROLLER_H
 
 #include <string>
-#include "opendlv-standard-message-set.hpp"
-#include <openkorp-message-set.hpp>
+#include "openkorp-message-set.hpp"
 // #include <vector>
 // #include <unistd.h>
 

@@ -16,7 +16,6 @@
  */
 
 #include "cluon-complete.hpp"
-#include "opendlv-standard-message-set.hpp"
 #include "Ps3Controller.h"
 #include <ncurses.h>
 #include "openkorp-message-set.hpp"

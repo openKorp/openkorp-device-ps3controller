@@ -24,7 +24,6 @@ project(openkorp-device-ps3controller)
 
 ################################################################################
 # Defining the relevant versions of OpenDLV Standard Message Set and libcluon.
-set(OPENDLV_STANDARD_MESSAGE_SET opendlv-standard-message-set.odvd)
 set(OPENKORP_MESSAGE_SET openkorp-message-set.odvd)
 set(CLUON_COMPLETE cluon-complete-v0.0.75.hpp)
 
@@ -83,14 +82,6 @@ endif()
 
 
 ################################################################################
-# Generate opendlv-standard-message-set.{hpp,cpp} from ${OPENDLV_STANDARD_MESSAGE_SET} file.
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.cpp
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp-sources --cpp-add-include-file=opendlv-standard-message-set.hpp --out=${CMAKE_BINARY_DIR}/opendlv-standard-message-set.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET}
-    COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp-headers --out=${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET} ${CMAKE_BINARY_DIR}/cluon-msc)
-
-################################################################################
 # Generate openkorp-message-set.{hpp,cpp}.
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/openkorp-message-set.cpp
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -109,7 +100,7 @@ include_directories( ${CURSES_INCLUDE_DIRS} )
 
 ################################################################################
 # Gather all object code first to avoid double compilation.
-add_library(${PROJECT_NAME}-core OBJECT  ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.cpp ${CMAKE_BINARY_DIR}/openkorp-message-set.cpp src/Ps3Controller.cpp)
+add_library(${PROJECT_NAME}-core OBJECT  ${CMAKE_BINARY_DIR}/openkorp-message-set.cpp src/Ps3Controller.cpp)
 set(LIBRARIES Threads::Threads ${CURSES_LIBRARIES})
 
 ################################################################################

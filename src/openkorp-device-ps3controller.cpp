@@ -69,7 +69,16 @@ int32_t main(int32_t argc, char **argv) {
       if (VERBOSE == 2) {
         mvprintw(1,1,(ps3controller.toString()).c_str()); 
         mvprintw(1,40,(std::to_string(baseThrust)).c_str()); 
+        std::string thrustString = "Thrust";
+        mvprintw(0,40, thrustString.c_str()); 
+
         mvprintw(20,40,(std::to_string(rollTrim)).c_str()); 
+        std::string rollTrimString = "rollTrim";
+        mvprintw(19,40, rollTrimString.c_str()); 
+
+        mvprintw(10,40,(std::to_string(pitchTrim)).c_str()); 
+        std::string pitchTrimString = "pitchTrim";
+        mvprintw(9,40, pitchTrimString.c_str()); 
         refresh();   
       }
       cluon::data::TimeStamp sampleTime = cluon::time::now();
